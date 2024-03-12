@@ -1,25 +1,21 @@
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import ttk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from tkinter import ttk, messagebox
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
-import time
 
-xarray=[]
-valuesArray=[]
-fs=None
-numberOfCases=1
+xarray = []
+valuesArray = []
+fs = None
+numberOfCases = 1
 
 class SampleApp(tk.Tk):
-   
-    def __init__(self): 
-        width=800
-        height=600
+    def __init__(self):
+        width = 800
+        height = 600
         tk.Tk.__init__(self)
         self.title("Cyfrowe Przetwarzanie Sygnałów i Obrazów")
-        self.geometry(str(width)+"x"+str(height))
-
+        self.geometry(str(width) + "x" + str(height))
         self.pages = {}
 
         main_page = MainPage(self)
@@ -131,10 +127,6 @@ class Page(tk.Frame):
             upperLimit=int(upperLimit*fs)
             plotEKG(bottomLimmit, upperLimit)
 
-        
-
-    
-
 def zadanie1(freq,filename, hasFirstTime):
     if freq>=0 :
         if not readFile(freq, filename, hasFirstTime):
@@ -144,13 +136,6 @@ def zadanie1(freq,filename, hasFirstTime):
     else:
         messagebox.showinfo(message="Czestotliwość musi być liczbą dodatnią")
     return False
-           
-
-
-    """filename - name of the file from which the EKG signals is read
-    isFirstValid - the information whatever th first column is valid as x-array or if that's time """
-
-
 
 def readFile(samplingFrequency,filename, hasFirstTime):
     timePeriod=1/samplingFrequency
@@ -185,61 +170,23 @@ def readFile(samplingFrequency,filename, hasFirstTime):
         count=0
     file.close()
 
-    for i in range (1,5):
-        x="t "+str(xarray[i])+": "
-        for j in range (n):
-            x+=str(valuesArray[j][i])+" "
-        print(x+'\n')
 
     return True
-   # except: 
+    #except: 
     #    return False
 
-
-def plotEKG(bottomLimmit=0, upperLimit=100, n=1):
+def plotEKG(bottomLimmit=0, upperLimit=100):
     plt.figure()
-    plt.plot(xarray[bottomLimmit:upperLimit], valuesArray=[n][bottomLimmit:upperLimit])
-    plt.xlabel('time [s]')
-    plt.ylabel('amplituda sygnalu [mV]')
-    # Ustawienie limitów dla osi X
-    plt.xlim(left=bottomLimmit/fs, right=upperLimit/fs)
+    for i in range(numberOfCases):
+        plt.subplot(numberOfCases, 1, i+1)
+        plt.plot(xarray[bottomLimmit:upperLimit], valuesArray[i][bottomLimmit:upperLimit])
+        plt.xlabel('time [s]')
+        plt.ylabel('amplituda sygnalu [mV]')
+        # Ustawienie limitów dla osi X
+        plt.xlim(left=bottomLimmit/fs, right=upperLimit/fs)
     plt.show()
     return True
-
-class MultiChartApp:
-    def __init__(self, master, num_charts):
-        self.master = master
-        self.num_charts = num_charts
-        self.figures = []
-
-        # Create and pack a notebook widget to hold the charts
-        self.notebook = ttk.Notebook(master)
-        self.notebook.pack(fill=tk.BOTH, expand=True)
-
-        # Create and add each chart to the notebook
-        for i in range(num_charts):
-            frame = ttk.Frame(self.notebook)
-            self.notebook.add(frame, text=f"Chart {i+1}")
-
-            # Create a figure and axes for the chart
-            fig, ax = plt.subplots()
-            self.figures.append(fig)
-
-            # Plot some data on the axes
-            x = np.linspace(0, 10, 100)
-            y = np.sin(x)
-            ax.plot(x, y)
-            
-            # Embed the figure in the tkinter frame
-            canvas = FigureCanvasTkAgg(fig, master=frame)
-            canvas.draw()
-            canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
 
 if __name__ == "__main__":
     app = SampleApp()
     app.mainloop()
-
-
-
-
