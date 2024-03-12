@@ -137,55 +137,52 @@ def zadanie1(freq,filename, hasFirstTime):
         messagebox.showinfo(message="Czestotliwość musi być liczbą dodatnią")
     return False
 
-def readFile(samplingFrequency,filename, hasFirstTime):
-    timePeriod=1/samplingFrequency
-    global numberOfCases
-    #try:
-    file = open(filename, 'r')
-    allcount=0
-    sampleLine=file.readline()
-    n=len(sampleLine.split())
-    numberOfCases=n
-    for _ in range(n):
-        inner_list=[]
-        valuesArray.append(inner_list)
-    
-    for line in file:
-        columns=line.split()
-        count=0
-        if hasFirstTime:
-            for pom in columns:
-                if (count==0):
-                    xarray.append(pom)
+def readFile(samplingFrequency, filename, hasFirstTime):
+    timePeriod = 1 / samplingFrequency
+    global xarray, valuesArray, numberOfCases
+    xarray.clear()
+    valuesArray.clear()
+
+    try:
+        with open(filename, 'r') as file:
+            for line in file:
+                columns = line.split()
+                if hasFirstTime and len(columns) > 1:
+                    xarray.append(float(columns[0]))
+                    columns = columns[1:]  # Remove time column if present
                 else:
-                    valuesArray[count-1].append(float(pom))
-                count+=1
+                    xarray.append(len(xarray) * timePeriod)
+                
+                for i, value in enumerate(columns):
+                    if len(valuesArray) <= i:
+                        valuesArray.append([])  # Create new list for new signals
+                    valuesArray[i].append(float(value))
+                    
+        numberOfCases = len(valuesArray)
+        return True
+    except Exception as e:
+        messagebox.showerror("Błąd odczytu pliku", str(e))
+        return False
 
-        else:
-            for pom in columns:
-                xarray.append(allcount*timePeriod)
-                valuesArray[count].append(float(pom))
-                count+=1
-            allcount+=1
-        count=0
-    file.close()
-
-
-    return True
-    #except: 
-    #    return False
-
-def plotEKG(bottomLimmit=0, upperLimit=100):
-    plt.figure()
+def plotEKG(bottomLimmit=0, upperLimit=None):
+    if upperLimit is None:
+        upperLimit = len(xarray)
+    
+    plt.figure(figsize=(15, 2 * numberOfCases))  # Ustawienie większego rozmiaru figury
+    plt.subplots_adjust(hspace=1.0)  # Większe odstępy między wykresami
+    
     for i in range(numberOfCases):
         plt.subplot(numberOfCases, 1, i+1)
-        plt.plot(xarray[bottomLimmit:upperLimit], valuesArray[i][bottomLimmit:upperLimit])
-        plt.xlabel('time [s]')
-        plt.ylabel('amplituda sygnalu [mV]')
-        # Ustawienie limitów dla osi X
-        plt.xlim(left=bottomLimmit/fs, right=upperLimit/fs)
+        plt.plot(xarray[bottomLimmit:upperLimit], valuesArray[i][bottomLimmit:upperLimit], label=f'Sygnał {i+1}')
+        plt.xlabel('Czas [s]')
+        plt.ylabel('Amplituda [mV]')
+        plt.legend(loc='upper right')
+        plt.grid(True)
+    
+    plt.tight_layout()  # Automatyczna regulacja odstępów
     plt.show()
     return True
+
 
 if __name__ == "__main__":
     app = SampleApp()
