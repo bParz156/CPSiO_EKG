@@ -1,25 +1,21 @@
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import ttk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from tkinter import ttk, messagebox
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
-import time
 
-xarray=[]
-valuesArray=[]
-fs=None
-numberOfCases=1
+xarray = []
+valuesArray = []
+fs = None
+numberOfCases = 1
 
 class SampleApp(tk.Tk):
-   
-    def __init__(self): 
-        width=800
-        height=600
+    def __init__(self):
+        width = 800
+        height = 600
         tk.Tk.__init__(self)
         self.title("Cyfrowe Przetwarzanie Sygnałów i Obrazów")
-        self.geometry(str(width)+"x"+str(height))
-
+        self.geometry(str(width) + "x" + str(height))
         self.pages = {}
 
         main_page = MainPage(self)
@@ -131,120 +127,66 @@ class Page(tk.Frame):
             upperLimit=int(upperLimit*fs)
             plotEKG(bottomLimmit, upperLimit)
 
-def zadanie1(freq, filename, hasFirstTime):
-    global xarray, yarray
-    if freq <= 0:
-        messagebox.showinfo(message="Częstotliwość musi być liczbą dodatnią")
-        return False
-
-    # Sprawdzenie, czy wybrany plik to 'ekg100.txt' i czy ma być obsłużony specjalnie
-    if filename.endswith('ekg100.txt'):
-        time, data = readSingleColumnFile(filename, freq)
-        if time is None or data is None:
-            messagebox.showinfo(message="Wybrany plik jest niepoprawny")
-            return False
-        # Rysowanie wykresu dla 'ekg100.txt'
-        plotEKG(time, data, 1)  # Dla uproszczenia przyjmujemy, że rysujemy tylko jeden wykres
+def zadanie1(freq,filename, hasFirstTime):
+    if freq>=0 :
+        if not readFile(freq, filename, hasFirstTime):
+             messagebox.showinfo(message="Wybrany plik jest niepoprawny") 
+        else:
+             return plotEKG()
     else:
         messagebox.showinfo(message="Czestotliwość musi być liczbą dodatnią")
     return False
-           
-
-
-    """filename - name of the file from which the EKG signals is read
-    isFirstValid - the information whatever th first column is valid as x-array or if that's time """
-
-
 
 def readFile(samplingFrequency,filename, hasFirstTime):
     timePeriod=1/samplingFrequency
-    try:
-        file = open(filename, 'r')
-        allcount=0
-        for line in file:
-            columns=line.split()
-            count=0
-            if hasFirstTime:
-                for pom in columns:
-                    if (count==0):
-                        xarray.append(pom)
-                    else:
-                        yarray.append(float(pom))
+    global numberOfCases
+    #try:
+    file = open(filename, 'r')
+    allcount=0
+    sampleLine=file.readline()
+    n=len(sampleLine.split())
+    numberOfCases=n
+    for _ in range(n):
+        inner_list=[]
+        valuesArray.append(inner_list)
+    
+    for line in file:
+        columns=line.split()
+        count=0
+        if hasFirstTime:
+            for pom in columns:
+                if (count==0):
+                    xarray.append(pom)
+                else:
+                    valuesArray[count-1].append(float(pom))
+                count+=1
 
-                    count+=1
+        else:
+            for pom in columns:
+                xarray.append(allcount*timePeriod)
+                valuesArray[count].append(float(pom))
+                count+=1
+            allcount+=1
+        count=0
+    file.close()
 
-            else:
-                 for pom in columns:
-                    yarray.append(float(pom))
-                    xarray.append(allcount*timePeriod)
-                    allcount+=1
-            count=0
-        file.close()
-        return True
-    except: 
-        return False
 
+    return True
+    #except: 
+    #    return False
 
 def plotEKG(bottomLimmit=0, upperLimit=100):
     plt.figure()
-    plt.plot(xarray[bottomLimmit:upperLimit], yarray[bottomLimmit:upperLimit])
-    plt.xlabel('time [s]')
-    plt.ylabel('amplituda sygnalu [mV]')
-    # Ustawienie limitów dla osi X
-    #plt.xlim(left=bottomLimmit/fs, right=upperLimit/fs)
+    for i in range(numberOfCases):
+        plt.subplot(numberOfCases, 1, i+1)
+        plt.plot(xarray[bottomLimmit:upperLimit], valuesArray[i][bottomLimmit:upperLimit])
+        plt.xlabel('time [s]')
+        plt.ylabel('amplituda sygnalu [mV]')
+        # Ustawienie limitów dla osi X
+        plt.xlim(left=bottomLimmit/fs, right=upperLimit/fs)
     plt.show()
-    
-def readSingleColumnFile(filename, frequency):
-    try:
-        with open(filename, 'r') as file:
-            data = []
-            for line in file:
-                try:
-                    # Usuwamy białe znaki i konwertujemy linie na float
-                    data.append(float(line.strip()))
-                except ValueError as e:
-                    print(f"Problem z linijką '{line.strip()}': {e}")
-        # Zakładamy, że czas jest równomiernie rozmieszczony i obliczamy go
-        time = [i / frequency for i in range(len(data))]
-        return time, data
-    except Exception as e:
-        print(f"Nie udało się otworzyć pliku: {e}")
-        return None, None
-
-class MultiChartApp:
-    def __init__(self, master, num_charts):
-        self.master = master
-        self.num_charts = num_charts
-        self.figures = []
-
-        # Create and pack a notebook widget to hold the charts
-        self.notebook = ttk.Notebook(master)
-        self.notebook.pack(fill=tk.BOTH, expand=True)
-
-        # Create and add each chart to the notebook
-        for i in range(num_charts):
-            frame = ttk.Frame(self.notebook)
-            self.notebook.add(frame, text=f"Chart {i+1}")
-
-            # Create a figure and axes for the chart
-            fig, ax = plt.subplots()
-            self.figures.append(fig)
-
-            # Plot some data on the axes
-            x = np.linspace(0, 10, 100)
-            y = np.sin(x)
-            ax.plot(x, y)
-            
-            # Embed the figure in the tkinter frame
-            canvas = FigureCanvasTkAgg(fig, master=frame)
-            canvas.draw()
-            canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
+    return True
 
 if __name__ == "__main__":
     app = SampleApp()
     app.mainloop()
-
-
-
-
