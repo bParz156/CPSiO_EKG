@@ -8,6 +8,7 @@ xarray = []
 valuesArray = []
 fs = None
 numberOfCases = 1
+hasFirstTime=False
 
 class SampleApp(tk.Tk):
     def __init__(self):
@@ -75,12 +76,14 @@ class Page(tk.Frame):
             self.entry2 = tk.Entry(container)
             self.entry2.grid(row=1, column=1, columnspan=1, padx=10, pady=5)
 
+
             self.checkbox_var = tk.BooleanVar()
             self.checkbox = tk.Checkbutton(container, text="Zaznacz jesli pierwsza kolumna zawiera czas", variable=self.checkbox_var)
             self.checkbox.grid(row=2, column=0, columnspan=1, sticky='w', padx=10, pady=5)
 
             self.button = tk.Button(container, text="Wyświetl wykres", command=lambda: self.plotChartButtonCLicked(master=master))
             self.button.grid(row=3, column=0, columnspan=1, padx=10, pady=10)
+            
 
         elif name == "Page 5":
             container = tk.Frame(self)
@@ -100,10 +103,15 @@ class Page(tk.Frame):
             self.entryUpperLimit.grid(row=1, column=1, columnspan=1, padx=10, pady=5)
             
             self.button = tk.Button(container, text="Aktualizuj wykres", command=self.updatePlot)
-            self.button.grid(row=3, column=0, columnspan=1, padx=10, pady=10)
+            self.button.grid(row=3, column=2, columnspan=1, padx=10, pady=10)
+
+            self.buttonSave = tk.Button(container, text="Zapisz do pliku wyświetlaną część wykresu", command=self.save)
+            self.buttonSave.grid(row=4, column=1, columnspan=1, padx=10, pady=10)
+            self.entryFileName = tk.Entry(container)
+            self.entryFileName.grid(row=4, column=2, columnspan=1, padx=10, pady=5)
             
     def plotChartButtonCLicked(self, master):
-        global fs
+        global fs, hasFirstTime
         ok=True
         try:
             fs=int(self.entry1.get())
@@ -114,6 +122,7 @@ class Page(tk.Frame):
         if ok:
             if zadanie1(fs,self.entry2.get(),self.checkbox_var.get()):
                 master.show_page("page_5")
+        hasFirstTime=self.checkbox_var.get()
 
     def updatePlot(self):
         upperLimit=float(self.entryUpperLimit.get())
@@ -127,6 +136,24 @@ class Page(tk.Frame):
             upperLimit=int(upperLimit*fs)
             plotEKG(bottomLimmit, upperLimit)
 
+
+    def save(self):
+        global hasFirstTime, numberOfCases
+        upperLimit=float(self.entryUpperLimit.get())
+        bottomLimmit=float(self.entryBottomLimit.get())
+        bottomLimmit=int(bottomLimmit*fs)
+        upperLimit=int(upperLimit*fs)
+        name=self.entryFileName.get()
+        file=open(name, 'w')
+        for i in range(bottomLimmit, upperLimit):
+            x=""
+            if hasFirstTime:
+                x+=str(xarray[i])
+            for j in range(numberOfCases):
+                x+=str(valuesArray[j][i])
+            file.write(x+'\n')
+        file.close()
+
 def zadanie1(freq,filename, hasFirstTime):
     if freq>=0 :
         if not readFile(freq, filename, hasFirstTime):
@@ -139,14 +166,19 @@ def zadanie1(freq,filename, hasFirstTime):
 
 def readFile(samplingFrequency,filename, hasFirstTime):
     timePeriod=1/samplingFrequency
-    global numberOfCases
+    global numberOfCases, xarray, valuesArray
     #try:
+    xarray=[]
+    valuesArray=[]
     file = open(filename, 'r')
     allcount=0
     sampleLine=file.readline()
     n=len(sampleLine.split())
-    numberOfCases=n
-    for _ in range(n):
+    if hasFirstTime:
+        numberOfCases=n-1
+    else:
+        numberOfCases=n
+    for _ in range(numberOfCases):
         inner_list=[]
         valuesArray.append(inner_list)
     
@@ -154,7 +186,7 @@ def readFile(samplingFrequency,filename, hasFirstTime):
         columns=line.split()
         count=0
         if hasFirstTime:
-            for pom in columns:
+           for pom in columns:
                 if (count==0):
                     xarray.append(pom)
                 else:
@@ -169,6 +201,11 @@ def readFile(samplingFrequency,filename, hasFirstTime):
             allcount+=1
         count=0
     file.close()
+
+    print(len(valuesArray[0]))
+    for i in range(5):
+        x=str(xarray[i])+" : "+str(valuesArray[0][i])
+        print(x)
 
 
     return True
