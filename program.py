@@ -26,7 +26,6 @@ class SampleApp(tk.Tk):
             page = Page(self, f"Page {i}")
             self.add_page(f"page_{i}", page)
 
-
         self.show_page("main_page")
 
     def add_page(self, name, page):
@@ -100,12 +99,9 @@ class Page(tk.Frame):
             label2.grid(row=1, column=0, sticky='w', padx=10, pady=5)
             self.entryUpperLimit = tk.Entry(container)
             self.entryUpperLimit.grid(row=1, column=1, columnspan=1, padx=10, pady=5)
-
             
             self.button = tk.Button(container, text="Aktualizuj wykres", command=self.updatePlot)
             self.button.grid(row=3, column=0, columnspan=1, padx=10, pady=10)
-
-
             
     def plotChartButtonCLicked(self, master):
         global fs
@@ -166,12 +162,13 @@ def readFile(samplingFrequency,filename, hasFirstTime):
                     if (count==0):
                         xarray.append(pom)
                     else:
-                        yarray.append(pom)
+                        yarray.append(float(pom))
+
                     count+=1
 
             else:
                  for pom in columns:
-                    yarray.append(pom)
+                    yarray.append(float(pom))
                     xarray.append(allcount*timePeriod)
                     allcount+=1
             count=0
@@ -183,8 +180,11 @@ def readFile(samplingFrequency,filename, hasFirstTime):
 
 def plotEKG(bottomLimmit=0, upperLimit=100):
     plt.figure()
-    plt.plot(xarray[bottomLimmit:upperLimit],yarray[bottomLimmit:upperLimit])
+    plt.plot(xarray[bottomLimmit:upperLimit], yarray[bottomLimmit:upperLimit])
     plt.xlabel('time [s]')
+    plt.ylabel('amplituda sygnalu [mV]')
+    # Ustawienie limitów dla osi X
+    plt.xlim(left=bottomLimmit/fs, right=upperLimit/fs)
     plt.show()
     return True
 
