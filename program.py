@@ -128,50 +128,62 @@ class Page(tk.Frame):
             upperLimit=int(upperLimit*fs)
             plotEKG(bottomLimmit, upperLimit)
 
-def zadanie1(freq,filename, hasFirstTime):
-    if freq>=0 :
-        if not readFile(freq, filename, hasFirstTime):
-             messagebox.showinfo(message="Wybrany plik jest niepoprawny") 
+def zadanie1(freq, filename, hasFirstTime):
+    if freq >= 0:
+        columns = readMultipleColumns(filename)
+        if columns:
+            # Zakładamy, że pierwsza kolumna zawiera czas jeśli hasFirstTime jest True
+            if hasFirstTime and len(columns) > 1:
+                xarray = columns[0]
+                yarrays = columns[1:]  # Wszystkie kolumny poza pierwszą są danymi
+                for i, yarray in enumerate(yarrays):
+                    plotEKG(xarray, yarray, i + 1)  # Rysuje wykres dla każdej serii danych
+            else:
+                # Jeśli nie ma kolumny czasu, użyj indeksu jako osi x
+                for i, column in enumerate(columns):
+                    xarray = list(range(len(column)))
+                    plotEKG(xarray, column, i + 1)
         else:
-             return plotEKG()
+            messagebox.showinfo(message="Wybrany plik jest niepoprawny")
+            return False
     else:
-        messagebox.showinfo(message="Czestotliwość musi być liczbą dodatnią")
-    return False
-           
-    """filename - name of the file from which the EKG signals is read
-    isFirstValid - the information whatever th first column is valid as x-array or if that's time """
-
-def readFile(samplingFrequency, filename, hasFirstTime):
-    timePeriod = 1 / samplingFrequency
-    global xarray, yarray 
-    try:
-        with open(filename, 'r') as file:  
-            allcount = 0
-            for line in file:
-                columns = line.split()
-                if hasFirstTime:
-                    if len(columns) > 1: 
-                        xarray.append(float(columns[0]))  
-                        yarray.extend([float(value) for value in columns[1:]])  
-                else:
-                    for value in columns:
-                        yarray.append(float(value))
-                        xarray.append(allcount * timePeriod)
-                        allcount += 1
-        return True
-    except Exception as e: 
+        messagebox.showinfo(message="Częstotliwość musi być liczbą dodatnią")
         return False
 
+def readMultipleColumns(filename):
+    columns = []
+    try:
+        with open(filename, 'r') as file:
+            for line in file:
+                values = line.split()  # Dzielenie linii na wartości
+                for i, value in enumerate(values):
+                    if len(columns) <= i:  # Jeśli to nowa kolumna, dodaj nową listę
+                        columns.append([])
+                    columns[i].append(float(value))
+        return columns
+    except Exception as e:
+        print(f"Nie udało się odczytać pliku: {e}")
+        return []
 
-def plotEKG(bottomLimmit=0, upperLimit=100):
-    plt.figure()
-    plt.plot(xarray[bottomLimmit:upperLimit], yarray[bottomLimmit:upperLimit])
-    plt.xlabel('time [s]')
-    plt.ylabel('amplituda sygnalu [mV]')
+def plotEKG(xarray, yarray, figure_number):
+    plt.figure(figure_number)
+    plt.plot(xarray, yarray)
+    plt.title(f'Wykres kolumny {figure_number}')
+    plt.xlabel('Czas [s]' if figure_number == 1 else 'Indeks próbki')
+    plt.ylabel('Wartość [mV]')
     # Ustawienie limitów dla osi X
-    plt.xlim(left=bottomLimmit/fs, right=upperLimit/fs)
+    #plt.xlim(left=bottomLimmit/fs, right=upperLimit/fs)
     plt.show()
-    return True
+    
+def readSingleColumnFile(filename, frequency):
+    try:
+        with open(filename, 'r') as file:
+            data = [float(line.strip()) for line in file]
+        time = [i / frequency for i in range(len(data))]
+        return time, data
+    except Exception as e:
+        print(f"Nie udalo sie otworzyc pliku: {e}")
+        return None, None
 
 if __name__ == "__main__":
     app = SampleApp()
