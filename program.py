@@ -129,26 +129,37 @@ class Page(tk.Frame):
             plotEKG(bottomLimmit, upperLimit)
 
 def zadanie1(freq, filename, hasFirstTime):
-    if freq >= 0:
-        columns = readMultipleColumns(filename)
-        if columns:
-            # Zakładamy, że pierwsza kolumna zawiera czas jeśli hasFirstTime jest True
-            if hasFirstTime and len(columns) > 1:
-                xarray = columns[0]
-                yarrays = columns[1:]  # Wszystkie kolumny poza pierwszą są danymi
-                for i, yarray in enumerate(yarrays):
-                    plotEKG(xarray, yarray, i + 1)  # Rysuje wykres dla każdej serii danych
-            else:
-                # Jeśli nie ma kolumny czasu, użyj indeksu jako osi x
-                for i, column in enumerate(columns):
-                    xarray = list(range(len(column)))
-                    plotEKG(xarray, column, i + 1)
-        else:
-            messagebox.showinfo(message="Wybrany plik jest niepoprawny")
-            return False
-    else:
+    global xarray, yarray
+    if freq <= 0:
         messagebox.showinfo(message="Częstotliwość musi być liczbą dodatnią")
         return False
+
+    # Sprawdzenie, czy wybrany plik to 'ekg100.txt' i czy ma być obsłużony specjalnie
+    if filename.endswith('ekg100.txt'):
+        time, data = readSingleColumnFile(filename, freq)
+        if time is None or data is None:
+            messagebox.showinfo(message="Wybrany plik jest niepoprawny")
+            return False
+        # Rysowanie wykresu dla 'ekg100.txt'
+        plotEKG(time, data, 1)  # Dla uproszczenia przyjmujemy, że rysujemy tylko jeden wykres
+    else:
+        # Obsługa plików z wieloma kolumnami
+        columns = readMultipleColumns(filename)
+        if not columns:
+            messagebox.showinfo(message="Wybrany plik jest niepoprawny")
+            return False
+
+        # Decyzja na podstawie hasFirstTime
+        if hasFirstTime and len(columns) > 1:
+            xarray, yarrays = columns[0], columns[1:]
+            for i, yarray in enumerate(yarrays, start=1):
+                plotEKG(xarray, yarray, i)
+        else:
+            # Jeśli pierwsza kolumna nie zawiera czasu, użyj indeksu jako osi X
+            for i, column in enumerate(columns, start=1):
+                xarray = list(range(len(column)))
+                plotEKG(xarray, column, i)
+    return True
 
 def readMultipleColumns(filename):
     columns = []
@@ -178,12 +189,20 @@ def plotEKG(xarray, yarray, figure_number):
 def readSingleColumnFile(filename, frequency):
     try:
         with open(filename, 'r') as file:
-            data = [float(line.strip()) for line in file]
+            data = []
+            for line in file:
+                try:
+                    # Usuwamy białe znaki i konwertujemy linie na float
+                    data.append(float(line.strip()))
+                except ValueError as e:
+                    print(f"Problem z linijką '{line.strip()}': {e}")
+        # Zakładamy, że czas jest równomiernie rozmieszczony i obliczamy go
         time = [i / frequency for i in range(len(data))]
         return time, data
     except Exception as e:
-        print(f"Nie udalo sie otworzyc pliku: {e}")
+        print(f"Nie udało się otworzyć pliku: {e}")
         return None, None
+
 
 if __name__ == "__main__":
     app = SampleApp()
