@@ -128,10 +128,6 @@ class Page(tk.Frame):
             upperLimit=int(upperLimit*fs)
             plotEKG(bottomLimmit, upperLimit)
 
-        
-
-    
-
 def zadanie1(freq,filename, hasFirstTime):
     if freq>=0 :
         if not readFile(freq, filename, hasFirstTime):
@@ -142,39 +138,28 @@ def zadanie1(freq,filename, hasFirstTime):
         messagebox.showinfo(message="Czestotliwość musi być liczbą dodatnią")
     return False
            
-
-
     """filename - name of the file from which the EKG signals is read
     isFirstValid - the information whatever th first column is valid as x-array or if that's time """
 
-
-
-def readFile(samplingFrequency,filename, hasFirstTime):
-    timePeriod=1/samplingFrequency
+def readFile(samplingFrequency, filename, hasFirstTime):
+    timePeriod = 1 / samplingFrequency
+    global xarray, yarray 
     try:
-        file = open(filename, 'r')
-        allcount=0
-        for line in file:
-            columns=line.split()
-            count=0
-            if hasFirstTime:
-                for pom in columns:
-                    if (count==0):
-                        xarray.append(pom)
-                    else:
-                        yarray.append(float(pom))
-
-                    count+=1
-
-            else:
-                 for pom in columns:
-                    yarray.append(float(pom))
-                    xarray.append(allcount*timePeriod)
-                    allcount+=1
-            count=0
-        file.close()
+        with open(filename, 'r') as file:  
+            allcount = 0
+            for line in file:
+                columns = line.split()
+                if hasFirstTime:
+                    if len(columns) > 1: 
+                        xarray.append(float(columns[0]))  
+                        yarray.extend([float(value) for value in columns[1:]])  
+                else:
+                    for value in columns:
+                        yarray.append(float(value))
+                        xarray.append(allcount * timePeriod)
+                        allcount += 1
         return True
-    except: 
+    except Exception as e: 
         return False
 
 
@@ -187,7 +172,6 @@ def plotEKG(bottomLimmit=0, upperLimit=100):
     plt.xlim(left=bottomLimmit/fs, right=upperLimit/fs)
     plt.show()
     return True
-
 
 if __name__ == "__main__":
     app = SampleApp()
