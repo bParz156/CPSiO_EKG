@@ -85,7 +85,6 @@ class Page(tk.Frame):
 
             self.button = tk.Button(container, text="Wyświetl wykres", command=lambda: self.plotChartButtonCLicked(master=master))
             self.button.grid(row=3, column=0, columnspan=1, padx=10, pady=10)
-
         elif name == "Page 5":
             container = tk.Frame(self)
             container.pack(pady=10)
@@ -105,7 +104,47 @@ class Page(tk.Frame):
             
             self.button = tk.Button(container, text="Aktualizuj wykres", command=self.updatePlot)
             self.button.grid(row=3, column=0, columnspan=1, padx=10, pady=10)
+        elif name == "Page 2":
+            # Etykieta strony
+            self.label = tk.Label(self, text="Analiza FFT", font=("Helvetica", 18))
+            self.label.pack(pady=10)
             
+            # Kontener na elementy
+            container = tk.Frame(self)
+            container.pack(pady=10)
+
+            # Etykieta i pole wejściowe dla częstotliwości 1
+            tk.Label(container, text="Częstotliwość 1 (Hz):", font=("Helvetica", 12)).grid(row=0, column=0, sticky='w', padx=10, pady=5)
+            self.freq1_entry = tk.Entry(container, font=("Helvetica", 12))
+            self.freq1_entry.grid(row=0, column=1, padx=10, pady=5)
+
+            # Etykieta i pole wejściowe dla częstotliwości 2
+            tk.Label(container, text="Częstotliwość 2 (Hz):", font=("Helvetica", 12)).grid(row=1, column=0, sticky='w', padx=10, pady=5)
+            self.freq2_entry = tk.Entry(container, font=("Helvetica", 12))
+            self.freq2_entry.grid(row=1, column=1, padx=10, pady=5)
+
+            # Etykieta i pole wejściowe dla czasu trwania sygnału
+            tk.Label(container, text="Czas trwania sygnału (s):", font=("Helvetica", 12)).grid(row=2, column=0, sticky='w', padx=10, pady=5)
+            self.duration_entry = tk.Entry(container, font=("Helvetica", 12))
+            self.duration_entry.grid(row=2, column=1, padx=10, pady=5)
+
+            # Etykieta i pole wejściowe dla częstotliwości próbkowania
+            tk.Label(container, text="Częstotliwość próbkowania (Hz):", font=("Helvetica", 12)).grid(row=3, column=0, sticky='w', padx=10, pady=5)
+            self.sampling_rate_entry = tk.Entry(container, font=("Helvetica", 12))
+            self.sampling_rate_entry.grid(row=3, column=1, padx=10, pady=5)
+
+            self.run_task_button = tk.Button(container, text="Uruchom zadanie 2", command=self.run_task_2)
+            self.run_task_button.grid(row=4, column=0, columnspan=2, padx=10, pady=10)
+
+    def run_task_2(self):
+        try:
+            f1 = float(self.freq1_entry.get())
+            f2 = float(self.freq2_entry.get())
+            fs = int(self.sampling_rate_entry.get())
+            zadanie2(f1, f2, fs)  
+        except ValueError as e:
+            messagebox.showerror("Błąd", "Proszę wprowadzić poprawne wartości liczbowe.")
+
     def plotChartButtonCLicked(self, master):
         global fs
         ok=True
@@ -153,8 +192,6 @@ def zadanie1(freq, filename, hasFirstTime):
 
     """filename - name of the file from which the EKG signals is read
     isFirstValid - the information whatever th first column is valid as x-array or if that's time """
-
-
 
 def readFile(samplingFrequency,filename, hasFirstTime):
     timePeriod=1/samplingFrequency
@@ -240,6 +277,82 @@ class MultiChartApp:
             canvas.draw()
             canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
+
+def zadanie2(f1, f2, fs):
+
+    # Parametry sygnału
+    f1 = 50  # częstotliwość fali sinusoidalnej 50Hz
+    f2 = 60  # częstotliwość fali sinusoidalnej 60Hz
+    signal_length = 65536  # długość sygnału
+    fs = 1000  # częstotliwość próbkowania (fs > 2*fmax zgodnie z twierdzeniem Nyquista)
+
+    # Czas trwania sygnału
+    t = np.arange(signal_length) / fs
+
+    # 1. Generowanie ciągu próbek dla fali sinusoidalnej 50 Hz
+    signal_50Hz = np.sin(2 * np.pi * f1 * t)
+
+    # 2. Dyskretna transformata Fouriera (DFT) sygnału 50 Hz
+    fft_50Hz = np.fft.fft(signal_50Hz)
+    freqs = np.fft.fftfreq(signal_length, 1/fs)
+    half_freqs = freqs[:signal_length//2]
+    half_fft_50Hz = np.abs(fft_50Hz[:signal_length//2])  # Widmo amplitudowe
+
+    # Wykres widma amplitudowego dla sygnału 50 Hz
+    plt.figure(figsize=(12, 6))
+    plt.plot(half_freqs, half_fft_50Hz)
+    plt.title('Widmo amplitudowe sygnału 50 Hz')
+    plt.xlabel('Częstotliwość [Hz]')
+    plt.ylabel('Amplituda')
+    plt.xlim(0, fs/2)
+    plt.grid()
+    plt.show()
+
+    # 3. Generowanie ciągu próbek dla mieszaniny dwóch fal sinusoidalnych (50Hz i 60Hz)
+    mixed_signal = np.sin(2 * np.pi * f1 * t) + np.sin(2 * np.pi * f2 * t)
+
+    # DFT mieszaniny sygnałów
+    fft_mixed = np.fft.fft(mixed_signal)
+    half_fft_mixed = np.abs(fft_mixed[:signal_length//2])  # Widmo amplitudowe
+
+    # Wykres widma amplitudowego dla mieszaniny sygnałów
+    plt.figure(figsize=(12, 6))
+    plt.plot(half_freqs, half_fft_mixed)
+    plt.title('Widmo amplitudowe mieszaniny sygnałów 50 Hz i 60 Hz')
+    plt.xlabel('Częstotliwość [Hz]')
+    plt.ylabel('Amplituda')
+    plt.xlim(0, fs/2)
+    plt.grid()
+    plt.show()
+
+    # 4. Powtarzamy eksperymenty dla innej częstotliwości próbkowania
+    # Tutaj można ustawić inne wartości `fs` i wygenerować nowe sygnały, 
+    # jednak dla uproszczenia tego przykładu pominę ten krok.
+
+    # 5. Odwrotna transformata Fouriera dla sygnału 50 Hz
+    ifft_50Hz = np.fft.ifft(fft_50Hz)
+    ifft_mixed = np.fft.ifft(fft_mixed)
+
+    # Porównanie sygnałów oryginalnych i otrzymanych przez IFFT
+    plt.figure(figsize=(12, 6))
+    plt.subplot(2, 1, 1)
+    plt.plot(t, signal_50Hz, label='Oryginalny sygnał 50 Hz')
+    plt.plot(t, ifft_50Hz.real, label='Sygnał po IFFT', linestyle='--')
+    plt.title('Porównanie sygnałów 50 Hz')
+    plt.xlabel('Czas [s]')
+    plt.ylabel('Amplituda')
+    plt.legend()
+
+    plt.subplot(2, 1, 2)
+    plt.plot(t, mixed_signal, label='Oryginalna mieszanina sygnałów')
+    plt.plot(t, ifft_mixed.real, label='Mieszanina sygnałów po IFFT', linestyle='--')
+    plt.title('Porównanie mieszaniny sygnałów')
+    plt.xlabel('Czas [s]')
+    plt.ylabel('Amplituda')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     app = SampleApp()

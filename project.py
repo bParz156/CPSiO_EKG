@@ -27,7 +27,7 @@ def menu():
     if option=="1":
         zadanie1()
     elif option=="2":
-        zadanie2
+        zadanie2()
     elif option=="3":
         zadanie3
     elif option=="4":

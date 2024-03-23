@@ -61,8 +61,7 @@ class Page(tk.Frame):
         if name == "Page 1":
             container = tk.Frame(self)
             container.pack(pady=10)
-
-            # Set the weight of the first column to 15% of the total width
+            
             container.grid_columnconfigure(0, weight=1, minsize=int(master.winfo_width() * 0.15), )
 
             label1 = tk.Label(container, text="Podaj czestotliwosc probkowania sygnalu (Hz)", font=("Helvetica", 18))
@@ -85,8 +84,6 @@ class Page(tk.Frame):
         elif name == "Page 5":
             container = tk.Frame(self)
             container.pack(pady=10)
-
-            # Set the weight of the first column to 15% of the total width
             container.grid_columnconfigure(0, weight=1, minsize=int(master.winfo_width() * 0.15), )
 
             label1 = tk.Label(container, text="Podaj dolny ogranicznik czasu", font=("Helvetica", 18))
@@ -149,13 +146,13 @@ def readFile(samplingFrequency, filename, hasFirstTime):
                 columns = line.split()
                 if hasFirstTime and len(columns) > 1:
                     xarray.append(float(columns[0]))
-                    columns = columns[1:]  # Remove time column if present
+                    columns = columns[1:] 
                 else:
                     xarray.append(len(xarray) * timePeriod)
                 
                 for i, value in enumerate(columns):
                     if len(valuesArray) <= i:
-                        valuesArray.append([])  # Create new list for new signals
+                        valuesArray.append([])  
                     valuesArray[i].append(float(value))
                     
         numberOfCases = len(valuesArray)
@@ -164,24 +161,29 @@ def readFile(samplingFrequency, filename, hasFirstTime):
         messagebox.showerror("Błąd odczytu pliku", str(e))
         return False
 
-def plotEKG(bottomLimmit=0, upperLimit=None):
-    if upperLimit is None:
+def plotEKG(bottomLimit=0, upperLimit=None):
+    global fs
+    if upperLimit is None or upperLimit > len(xarray):
         upperLimit = len(xarray)
     
-    plt.figure(figsize=(15, 2 * numberOfCases))  # Ustawienie większego rozmiaru figury
-    plt.subplots_adjust(hspace=1.0)  # Większe odstępy między wykresami
+    adjustedBottomLimit = int(bottomLimit * fs)
+    adjustedUpperLimit = int(upperLimit * fs)
+    
+    plt.figure(figsize=(15, 2 * numberOfCases))
+    plt.subplots_adjust(hspace=1.0, bottom=0.02)  # Dostosowanie marginesu dolnego
     
     for i in range(numberOfCases):
         plt.subplot(numberOfCases, 1, i+1)
-        plt.plot(xarray[bottomLimmit:upperLimit], valuesArray[i][bottomLimmit:upperLimit], label=f'Sygnał {i+1}')
-        plt.xlabel('Czas [s]')
-        plt.ylabel('Amplituda [mV]')
+        plt.plot(xarray[adjustedBottomLimit:adjustedUpperLimit], valuesArray[i][adjustedBottomLimit:adjustedUpperLimit], label=f'Sygnał {i+1}')
+        plt.xlabel('Czas [s]')  
+        plt.ylabel('A [mV]')
         plt.legend(loc='upper right')
         plt.grid(True)
     
-    plt.tight_layout()  # Automatyczna regulacja odstępów
+    plt.tight_layout()
     plt.show()
     return True
+
 
 
 if __name__ == "__main__":
