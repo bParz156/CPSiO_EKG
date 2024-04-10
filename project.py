@@ -22,6 +22,7 @@ def menu():
           +"\n2. Ćwiczenie 2: ..."
           +"\n3. Ćwiczenie 3: ..."
           +"\n4. Ćwiczenie 4: ..."
+          +"\n4. Ćwiczenie 5: ..."
           +"\nq . Wyjdź z programu \n")
     print(option, type(option))
     if option=="1":
@@ -32,6 +33,8 @@ def menu():
         zadanie3
     elif option=="4":
         zadanie4
+    elif option=="5":
+        zadanie5
     elif option=="q":
         print("Koniec programu. Do widzenia")
         time.sleep(1)
@@ -99,6 +102,8 @@ def zadanie3():
 
 def zadanie4():
     print("Zadanie 4")
+def zadanie5():
+    print("Zadanie 5")
 
 """filename - name of the file from which the EKG signals is read
 isFirstValid - the information whatever th first column is valid as x-array or if that's time
