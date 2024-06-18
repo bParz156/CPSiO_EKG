@@ -7538,7 +7538,7 @@ Aby pokazać działanie systemu należy:<br/>
 lub pionowej o zadanej współrzędnej. Linie wybiera się za pomocą suwaków <br/>
 4.Po wywołaniu czwartej komórki pozwala na obcięcie zdjęcia i zapisanie go w formacie <i>.png</i> pod wybraną nazwą do katalogu ../data/
 
-<p>Wywołanie poniższej funkcji powoduje stworzenie widgeta, która pozwala na wybór dowolnego pliku znajdującego się w katalogu <i>../data/</i></p>
+<p>Wywołanie poniższej funkcji powoduje stworzenie widgeta, który pozwala na wybór dowolnego pliku znajdującego się w katalogu <i>../data/</i></p>
 </div>
 </div>
 </div>
@@ -7557,8 +7557,9 @@ lub pionowej o zadanej współrzędnej. Linie wybiera się za pomocą suwaków <
 <span class="kn">import</span> <span class="nn">ipywidgets</span> <span class="k">as</span> <span class="nn">widgets</span>
 
 <span class="n">data_path</span><span class="o">=</span><span class="s1">'../data/'</span>
+<span class="n">image_extension</span><span class="o">=</span><span class="s2">".tif"</span>
+<span class="n">images</span><span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">image_extension</span><span class="p">)]</span>
 
-<span class="n">images</span><span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">f</span><span class="p">))]</span>
 
 <span class="n">filename</span><span class="o">=</span><span class="n">widgets</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
     <span class="n">options</span><span class="o">=</span><span class="n">images</span><span class="p">,</span>
@@ -7580,7 +7581,7 @@ lub pionowej o zadanej współrzędnej. Linie wybiera się za pomocą suwaków <
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Dropdown(description='Obraz:', options=('aerial_view.png', 'blurry-moon.png', 'blurry-moon.tif', 'bonescan.png…</pre>
+<pre>Dropdown(description='Obraz:', options=('aerial_view.tif', 'blurry-moon.tif', 'bonescan.tif', 'cboard_pepper_o…</pre>
 </div>
 </div>
 </div>
@@ -7647,7 +7648,7 @@ lub pionowej o zadanej współrzędnej. Linie wybiera się za pomocą suwaków <
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">interact</span><span class="p">(</span><span class="n">plot_intensity_along_line</span><span class="p">,</span> <span class="n">image_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">'horizontal'</span><span class="p">,</span><span class="n">coordinate</span><span class="o">=</span><span class="n">horizontal_line</span><span class="p">)</span>
@@ -7664,17 +7665,17 @@ lub pionowej o zadanej współrzędnej. Linie wybiera się za pomocą suwaków <
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>interactive(children=(Text(value='../data/aerial_view.png', description='image_path'), Text(value='horizontal'…</pre>
+<pre>interactive(children=(Text(value='../data/aerial_view.tif', description='image_path'), Text(value='horizontal'…</pre>
 </div>
 </div>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>interactive(children=(Text(value='../data/aerial_view.png', description='image_path'), Text(value='vertical', …</pre>
+<pre>interactive(children=(Text(value='../data/aerial_view.tif', description='image_path'), Text(value='vertical', …</pre>
 </div>
 </div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
 <pre>&lt;function __main__.plot_intensity_along_line(image_path, axis, coordinate)&gt;</pre>
 </div>
@@ -7686,7 +7687,7 @@ lub pionowej o zadanej współrzędnej. Linie wybiera się za pomocą suwaków <
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">interact</span><span class="p">(</span><span class="n">display_subimg</span><span class="p">,</span><span class="n">image_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width_slider</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height_slider</span><span class="p">)</span>
@@ -7734,7 +7735,7 @@ lub pionowej o zadanej współrzędnej. Linie wybiera się za pomocą suwaków <
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>interactive(children=(Text(value='../data/aerial_view.png', description='image_path'), IntRangeSlider(value=(0…</pre>
+<pre>interactive(children=(Text(value='../data/aerial_view.tif', description='image_path'), IntRangeSlider(value=(0…</pre>
 </div>
 </div>
 <div class="jp-OutputArea-child">

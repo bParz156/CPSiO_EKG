@@ -7527,7 +7527,7 @@ Zbadaj działanie dolnoprzepustowych filtrów uśredniającego
 i gaussowskiego dla danych obrazów. Zaobserwuj wpływ rozmiaru masek na wynik filtracji.
 <br/><b>Dane:</b> characters_test_pattern.tif, zoneplate.tif.
 <br/><br/>
-Porgram pozwala na porównanie oryginalnego obrazu, obrazu otrzymanego dzięki użyciu filtra uśredniającego i obrazu otrzymanego dzięki zastosowaniu filtra gaussowskiego. Porównywane filtry działają na maskach tej samej wielkości. Wielkość maski jest regulowana za pomocą suwaka.
+Program pozwala na porównanie oryginalnego obrazu, obrazu otrzymanego dzięki użyciu filtra uśredniającego i obrazu otrzymanego dzięki zastosowaniu filtra gaussowskiego. Porównywane filtry działają na maskach tej samej wielkości. Wielkość maski jest regulowana za pomocą suwaka.
 
 
 </div>
@@ -7538,7 +7538,7 @@ Porgram pozwala na porównanie oryginalnego obrazu, obrazu otrzymanego dzięki u
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">run</span> functions.ipynb
@@ -7547,10 +7547,11 @@ Porgram pozwala na porównanie oryginalnego obrazu, obrazu otrzymanego dzięki u
 <span class="n">data_path</span><span class="o">=</span><span class="s1">'../data/'</span>
 <span class="n">image_extension</span><span class="o">=</span><span class="s2">".tif"</span>
 <span class="n">images</span><span class="o">=</span> <span class="p">[</span><span class="s2">"characters_test_pattern"</span><span class="p">,</span> <span class="s2">"zoneplate"</span><span class="p">]</span>
+<span class="n">sigma_slider</span><span class="o">=</span><span class="mi">3</span>
 
 <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
     <span class="n">filepath</span><span class="o">=</span><span class="n">data_path</span><span class="o">+</span><span class="n">image</span><span class="o">+</span><span class="n">image_extension</span>
-    <span class="n">porownanie_filtrow_gauss_liniowy</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">porownanie_filtrow_gauss_liniowy</span><span class="p">(</span><span class="n">image_path</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sigma_slider</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7593,7 +7594,7 @@ Porgram pozwala na porównanie oryginalnego obrazu, obrazu otrzymanego dzięki u
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p><b>Wnioski:</b> fitr gaussowski powoduje większe rozmycie niż filtr uśredniający, jednak w odróżnieniu od filtra uśredniającego, filtr Gaussa nie powoduje powstawania czarnej krawędzi (padding)</p>
+<p><b>Wnioski:</b> fitr gaussowski powoduje większe rozmycie niż filtr uśredniający, jednak w odróżnieniu od filtra uśredniającego, filtr Gaussa nie powoduje powstawania czarnej krawędzi.</p>
 </div>
 </div>
 </div>
